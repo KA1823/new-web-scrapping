@@ -39,6 +39,7 @@ def scroll_until_items_loaded(min_items=60):
 
     while attempts < 10:  # Max number of attempts to load more items
         driver.execute_script("window.scrollBy(0, 1200);")  # Scroll down
+
         time.sleep(5)  # Wait for items to load
 
         # Get the current number of items
