@@ -1,92 +1,77 @@
 import csv
-import os
-import re
-from selenium.webdriver.chrome.options import Options
 import time
-import pandas as pd
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
-from selenium.common.exceptions import NoSuchElementException
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.common.exceptions import TimeoutException
-from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
 
-
+# Initialize the WebDriver
 options = Options()
 driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
 driver.maximize_window()
-
-# Open the books to scrape website
 driver.get('https://books.toscrape.com/')
 
-# Prepare the CSV file to save the data
-with open('books_data.csv', mode='w', newline='', encoding='utf-8') as file:
-    writer = csv.writer(file)
-    # Write the header row
-    writer.writerow(['Title', 'UPC', 'Product Type', 'Price (excl. tax)', 'Price (incl. tax)', 'Tax', 'Availability', 'Number of Reviews'])
+# Initialize an empty list to store the book data
+books_data = []
 
-    # Loop through the pages of the website
-    while True:
-        # Get all book links on the current page
-        book_links = driver.find_elements(By.CSS_SELECTOR, 'h3 > a')
+# Loop through all pages
+while True:  
+    # Get all book links on the current page using XPath
+    books = driver.find_elements(By.XPATH, '//h3/a')
 
-        # Loop through each book link on the page
-        for book_link in book_links:
-            # Get the href attribute to click the link
-            book_url = book_link.get_attribute('href')
+    for book in books:
+        # Open the book page using XPath to get the href attribute
+        book_url = book.get_attribute('href')
+        driver.get(book_url)
 
-            # Open the book page
-            driver.get(book_url)
+        # Get the book title using XPath
+        title = driver.find_element(By.XPATH, '//h1').text
 
-            try:
-                # Wait for the title to load
-                title_element = WebDriverWait(driver, 10).until(
-                    EC.presence_of_element_located((By.TAG_NAME, 'h1'))
-                )
-                title = title_element.text
+        # Get the table rows using XPath
+        table = driver.find_elements(By.XPATH, '//table[@class="table table-striped"]//tr')
+        data = {}
+        for row in table:
+            # Find the header and value for each row using XPath
+            header = row.find_element(By.XPATH, './/th').text
+            value = row.find_element(By.XPATH, './/td').text
+            data[header] = value
 
-                # Find the table and extract its data
-                table_element = driver.find_element(By.CSS_SELECTOR, 'table.table-striped')
-                table_rows = table_element.find_elements(By.TAG_NAME, 'tr')
+        # Append the book data to the list
+        books_data.append([
+            title,
+            data.get('UPC'),
+            data.get('Product Type'),
+            data.get('Price (excl. tax)'),
+            data.get('Price (incl. tax)'),
+            data.get('Tax'),
+            data.get('Availability'),
+            data.get('Number of reviews')
+        ])
 
-                # Initialize a dictionary to hold the table data
-                table_data = {}
-                for row in table_rows:
-                    columns = row.find_elements(By.TAG_NAME, 'th, td')
-                    if len(columns) == 2:
-                        table_data[columns[0].text] = columns[1].text
+        # Go back to the list of books
+        driver.back()
+        time.sleep(1)  # To avoid overwhelming the server, wait 1 second between requests
 
-                # Write the data to the CSV file
-                writer.writerow([
-                    title,
-                    table_data.get('UPC'),
-                    table_data.get('Product Type'),
-                    table_data.get('Price (excl. tax)'),
-                    table_data.get('Price (incl. tax)'),
-                    table_data.get('Tax'),
-                    table_data.get('Availability'),
-                    table_data.get('Number of reviews')
-                ])
+    # Check if there is a "Next" button and go to the next page using XPath
+    try:
+        next_button = driver.find_element(By.XPATH, '//li[@class="next"]/a')
+        next_button.click()
+        time.sleep(2)  # Wait for the next page to load
+    except:
+        print("No more pages to scrape.")
+        break
 
-            except TimeoutException:
-                print(f"Failed to load elements for {book_url}")
-
-            # Go back to the book list page
-            driver.back()
-
-            # Wait for the page to load before continuing
-            time.sleep(2)
-
-        # Try to find and click the "next" button for pagination
-        try:
-            next_button = driver.find_element(By.CSS_SELECTOR, 'li.next > a')
-            next_button.click()
-            time.sleep(2)  # Wait for the next page to load
-        except:
-            print("No more pages found. Scraping finished.")
-            break
-
-# Close the browser when done
+# Close the WebDriver
 driver.quit()
+
+# Save the data to a CSV file
+with open('all_books_data.csv', mode='w', newline='', encoding='utf-8') as file:
+    writer = csv.writer(file)
+    # Write header for CSV file
+    writer.writerow(['Title', 'UPC', 'Product Type', 'Price (excl. tax)', 'Price (incl. tax)', 'Tax', 'Availability', 'Number of Reviews'])
+    
+    # Write all the book data at once
+    writer.writerows(books_data)
+
+print("Data has been successfully scraped and saved to all_books_data.csv")
