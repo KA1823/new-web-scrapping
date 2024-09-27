@@ -1,5 +1,5 @@
-import csv
 import time
+import pandas as pd
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
@@ -15,8 +15,7 @@ driver.get('https://books.toscrape.com/')
 # Initialize an empty list to store the book data
 books_data = []
 
-# Loop through all pages
-while True:  
+while True:  # Loop indefinitely until there's no next button
     # Get all book links on the current page using XPath
     books = driver.find_elements(By.XPATH, '//h3/a')
 
@@ -38,16 +37,16 @@ while True:
             data[header] = value
 
         # Append the book data to the list
-        books_data.append([
-            title,
-            data.get('UPC'),
-            data.get('Product Type'),
-            data.get('Price (excl. tax)'),
-            data.get('Price (incl. tax)'),
-            data.get('Tax'),
-            data.get('Availability'),
-            data.get('Number of reviews')
-        ])
+        books_data.append({
+            'Title': title,
+            'UPC': data.get('UPC'),
+            'Product Type': data.get('Product Type'),
+            'Price (excl. tax)': data.get('Price (excl. tax)'),
+            'Price (incl. tax)': data.get('Price (incl. tax)'),
+            'Tax': data.get('Tax'),
+            'Availability': data.get('Availability'),
+            'Number of Reviews': data.get('Number of reviews')
+        })
 
         # Go back to the list of books
         driver.back()
@@ -65,13 +64,10 @@ while True:
 # Close the WebDriver
 driver.quit()
 
-# Save the data to a CSV file
-with open('all_books_data.csv', mode='w', newline='', encoding='utf-8') as file:
-    writer = csv.writer(file)
-    # Write header for CSV file
-    writer.writerow(['Title', 'UPC', 'Product Type', 'Price (excl. tax)', 'Price (incl. tax)', 'Tax', 'Availability', 'Number of Reviews'])
-    
-    # Write all the book data at once
-    writer.writerows(books_data)
+# Convert the data to a pandas DataFrame
+books_df = pd.DataFrame(books_data)
+
+# Save the DataFrame to a CSV file
+books_df.to_csv('all_books_data.csv', index=False)
 
 print("Data has been successfully scraped and saved to all_books_data.csv")
