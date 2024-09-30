@@ -37,8 +37,8 @@ def scroll_until_items_loaded(min_items=60):
     current_items_count = 0
     attempts = 0
 
-    while attempts < 10:  # Max number of attempts to load more items
-        driver.execute_script("window.scrollBy(0, 1200);")  # Scroll down
+    while attempts < 5:  # Max number of attempts to load more items
+        driver.execute_script("window.scrollBy(0, 1250);")  # Scroll down
 
         time.sleep(5)  # Wait for items to load
 
@@ -103,7 +103,7 @@ page_counter = 1
 while page_counter < 4:  # Limit to first 3 pages
     try:
         # Find and click the 'Next' button to go to the next page
-        next_button = driver.find_element(By.XPATH, "//span[contains(@class, 'comet-icon comet-icon-arrowleftrtl32 ')]")
+        next_button = driver.find_element(By.XPATH, "//button[@class = 'comet-pagination-item-link']//span[@class = 'comet-icon comet-icon-arrowleftrtl32 ']")
         if 'disabled' not in next_button.get_attribute("class"):
             next_button.click()
             time.sleep(5)  # Wait for the next page to load
