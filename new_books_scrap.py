@@ -23,8 +23,9 @@ book_taxes = []
 book_availability = []
 book_reviews = []
 
-# Loop through all pages until no "Next" button is found
-while True:
+page_count = 0  # Initialize a counter to track the number of pages
+
+while page_count < 2:  # Limit scraping to 2 pages
     # Get all book links on the current page using XPath
     books = driver.find_elements(By.XPATH, '//h3/a')
 
@@ -64,6 +65,7 @@ while True:
         next_button = driver.find_element(By.XPATH, '//li[@class="next"]/a')
         next_button.click()
         time.sleep(2)  # Wait for the next page to load
+        page_count += 1  # Increment the page counter
     except NoSuchElementException:
         print("No more pages to scrape.")
         break
@@ -86,6 +88,6 @@ data = {
 books_df = pd.DataFrame(data)
 
 # Save the DataFrame to a CSV file
-books_df.to_csv('all_books_data.csv', index=False)
+books_df.to_csv('books_data_pandas.csv', index=False)
 
-print("Data has been successfully scraped and saved to all_books_data.csv")
+print("Data has been successfully scraped and saved to books_data_pandas.csv")
