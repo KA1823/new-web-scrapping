@@ -47,9 +47,17 @@ def extract_data_from_page():
         for name in names:
             laptop_name.append(name.text)
 
-        prices = laptop.find_elements(By.XPATH, ".//span[@class = 'a-price-whole']")
-        for price in prices:
-            laptop_price.append(price.text)
+        try:
+            if len(laptop.find_elements(By.XPATH, ".//span[@class = 'a-price-whole']"))>0:
+                prices = laptop.find_elements(By.XPATH, ".//span[@class = 'a-price-whole']")
+                for price in prices:
+                    laptop_price.append(price.text)
+            else:
+                laptop_price.append("N/A")
+        except:
+            pass
+
+
 
         try:
             if len(laptop.find_elements(By.XPATH, ".//span[@class = 'a-size-base s-underline-text']"))>0:
