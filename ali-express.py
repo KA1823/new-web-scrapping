@@ -105,7 +105,8 @@ while page_counter < 4:  # Limit to first 3 pages
         # Find and click the 'Next' button to go to the next page
         next_button = driver.find_element(By.XPATH, "//button[@class = 'comet-pagination-item-link']//span[@class = 'comet-icon comet-icon-arrowleftrtl32 ']")
         if 'disabled' not in next_button.get_attribute("class"):
-            next_button.click()
+            driver.execute_script("arguments[0].click();", next_button)
+            # next_button.click()
             time.sleep(5)  # Wait for the next page to load
             
             # Scroll until enough items are loaded on the new page
