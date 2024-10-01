@@ -1,3 +1,4 @@
+import pandas as pd
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
@@ -30,7 +31,8 @@ for index in range(len(products)):
 
     # Click on each product link
     product_link = products[index].find_element(By.TAG_NAME, "a")
-    product_link.click()
+    driver.execute_script("arguments[0].click();", product_link)
+    # product_link.click()
 
     # Allow time for the product page to load
     time.sleep(3)
@@ -72,6 +74,14 @@ for index in range(len(products)):
 
 # Close the browser after scraping
 driver.quit()
+
+# Convert the list of dictionaries to a pandas DataFrame
+df = pd.DataFrame(items_data)
+
+# Save DataFrame to CSV file
+df.to_csv('daraz_laptops.csv', index=False)
+
+print("Data has been saved to 'daraz_laptops.csv'.")
 
 # Print final collected data
 for item in items_data:
