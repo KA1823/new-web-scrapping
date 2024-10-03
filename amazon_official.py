@@ -13,15 +13,6 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException
 from webdriver_manager.chrome import ChromeDriverManager
 
-# Random delay function
-def random_delay():
-    time.sleep(random.uniform(5, 10))
-
-# Random mouse movement function
-def random_mouse_movement():
-    width, height = pyautogui.size()
-    pyautogui.moveTo(random.randint(0, width), random.randint(0, height), duration=random.uniform(1, 3))
-
 # Initialize Chrome WebDriver
 chrome_options = Options()
 chrome_options.add_argument("--start-maximized")
@@ -30,10 +21,6 @@ driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), opti
 
 # Navigate to Amazon
 driver.get("https://www.amazon.com/s?k=Dell+Laptop&rh=n%3A172282%2Cp_123%3A241862&dc&ds=v1%3AqzPBulz1AceDi2PT93%2BEQ5ZzlCgM85kX%2BKJ2%2Bz%2Bh2wc&qid=1727935866&rnid=85457740011&ref=sr_nr_p_123_1")
-random_delay()
-
-# Simulate human-like interaction
-random_mouse_movement()
 
 # Initialize lists to store the scraped data
 laptop_name = []
@@ -47,16 +34,11 @@ def extract_data_from_page():
     for product in products:
         try:
             product_link = product.get_attribute("href")
-            random_mouse_movement()
             driver.execute_script("window.open(arguments[0]);", product_link)
-            random_delay()
-            
+            time.sleep(3)  # Use a simple sleep instead of random_delay()
+
             # Switch to new tab
             driver.switch_to.window(driver.window_handles[1])
-            
-            # Simulate human-like interaction
-            random_delay()
-            random_mouse_movement()
 
             # Scrape the title
             try:
@@ -97,7 +79,7 @@ def extract_data_from_page():
             
             # Close the tab
             driver.close()
-            random_delay()
+            time.sleep(3)  # Use a simple sleep instead of random_delay()
             
             # Switch back to the main window
             driver.switch_to.window(driver.window_handles[0])
@@ -113,14 +95,9 @@ while page_counter <= total_pages:
     print(f"Scraping page {page_counter}...")
     extract_data_from_page()
     
-    # Simulate human-like interaction
-    random_delay()
-    random_mouse_movement()
-    
     # Find and click the 'Next' button to go to the next page
     try:
         next_button = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//a[contains(@class,'s-pagination-next')]")))
-        random_mouse_movement()
         next_button.click()
         time.sleep(5)
         page_counter += 1
@@ -142,6 +119,3 @@ df = pd.DataFrame(data)
 df.to_csv('amazon_official_dell_laptops.csv', index=False)
 
 print("Data has been saved to 'amazon_official_dell_laptops.csv'.")
-
-
-
