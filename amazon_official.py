@@ -107,7 +107,7 @@ def extract_data_from_page():
 
 # Handle pagination, limit to scraping 2 pages
 page_counter = 1
-total_pages = 1
+total_pages = 2
 
 while page_counter <= total_pages:
     print(f"Scraping page {page_counter}...")
