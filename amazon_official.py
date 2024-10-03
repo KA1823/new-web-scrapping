@@ -71,9 +71,10 @@ def extract_data_from_page():
                 price = driver.find_element(By.XPATH, "(//span[contains(@class, 'priceToPay')])[1]")
                 currency_symbol = price.find_element(By.XPATH, ".//span[contains(@class, 'a-price-symbol')]").text
                 whole_price = price.find_element(By.XPATH, ".//span[contains(@class, 'a-price-whole')]").text
-                full_price = f"{currency_symbol}{whole_price}"
+                fractional_price = price.find_element(By.XPATH, ".//span[@class = 'a-price-fraction']").text
+                full_price = f"{currency_symbol}{whole_price}.{fractional_price}"
             except NoSuchElementException:
-                # If not found, try 'a-offscreen'
+                # If not found, try 'aria-hidden'
                 try:
                     price_element = driver.find_element(By.XPATH, "(//span[contains(@class, 'apexPriceToPay')]//span[@aria-hidden='true'])[1]")
                     full_price = price_element.text.strip()  # Strip to remove leading/trailing whitespace
@@ -106,7 +107,7 @@ def extract_data_from_page():
 
 # Handle pagination, limit to scraping 2 pages
 page_counter = 1
-total_pages = 2
+total_pages = 1
 
 while page_counter <= total_pages:
     print(f"Scraping page {page_counter}...")
