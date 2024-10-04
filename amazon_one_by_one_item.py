@@ -60,10 +60,16 @@ def extract_data_from_page():
             # Scrape the price
             try:
                 price = driver.find_element(By.XPATH, "//span[contains(@class, 'priceToPay')]").text
-                numeric_price = re.sub(r'[^\d,]', '', price)  # Keep only digits
-                laptop_price.append(numeric_price)
+                # numeric_price = re.sub(r'[^\d,]', '', price)  # Keep only digits
+                # laptop_price.append(numeric_price)
             except NoSuchElementException:
-                laptop_price.append("N/A")
+                try:
+                    price_element = driver.find_element(By.XPATH, "(//span[contains(@class, 'apexPriceToPay')]//span[@aria-hidden='true'])[1]")
+                    price = price_element.text.strip()
+                except NoSuchElementException:
+                    price = "N/A"
+            
+            laptop_price.append(price)
             
             # Scrape the ratings
             try:
