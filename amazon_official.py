@@ -20,8 +20,20 @@ chrome_options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64
 driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
 
 # Navigate to Amazon
-driver.get("https://www.amazon.com/s?k=Dell+Laptop&rh=n%3A172282%2Cp_123%3A241862&dc&ds=v1%3AqzPBulz1AceDi2PT93%2BEQ5ZzlCgM85kX%2BKJ2%2Bz%2Bh2wc&qid=1727935866&rnid=85457740011&ref=sr_nr_p_123_1")
+driver.get("https://www.amazon.com")
 
+search = driver.find_element(By.XPATH, "//input[@id='twotabsearchtextbox']")
+search.clear()
+search.send_keys("Dell Laptops")
+
+search_button = driver.find_element(By.XPATH, "//input[@id='nav-search-submit-button']")
+search_button.click()
+
+time.sleep(3)
+
+# Filter to show only Dell brand products
+text = driver.find_element(By.XPATH, "//span[@class = 'a-size-base a-color-base' and text()='Dell']")
+text.click()
 # Initialize lists to store the scraped data
 laptop_name = []
 laptop_price = []
