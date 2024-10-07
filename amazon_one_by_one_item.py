@@ -73,7 +73,7 @@ def extract_data_from_page():
     # Fallback: Try to get the price from 'apexPriceToPay'
                 try:
                     price_element = driver.find_element(By.XPATH, "//span[contains(@class, 'apexPriceToPay')]//span[@aria-hidden='true']")
-                    full_price = price_element.text.strip()
+                    full_price = price_element.text.strip() # Strip to remove leading/trailing whitespace
                 except NoSuchElementException:
                     # If neither price is found, set full_price to "N/A"
                     full_price = "N/A"
