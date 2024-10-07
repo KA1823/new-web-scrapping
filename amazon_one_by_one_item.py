@@ -59,17 +59,26 @@ def extract_data_from_page():
             
             # Scrape the price
             try:
-                price = driver.find_element(By.XPATH, "//span[contains(@class, 'priceToPay')]").text
+                price = driver.find_element(By.XPATH, "//span[contains(@class, 'priceToPay')]")
+                currency_symbol = price.find_element(By.XPATH, ".//span[contains(@class, 'a-price-symbol')]").text
+                whole_price = price.find_element(By.XPATH, ".//span[contains(@class, 'a-price-whole')]").text
+                try:
+                    fractional_price = price.find_element(By.XPATH, ".//span[@class = 'a-price-fraction']").text
+                    full_price = f"{currency_symbol}{whole_price}.{fractional_price}"
+                except NoSuchElementException:
+                    full_price = f"{currency_symbol}{whole_price}"
                 # numeric_price = re.sub(r'[^\d,]', '', price)  # Keep only digits
                 # laptop_price.append(numeric_price)
             except NoSuchElementException:
+    # Fallback: Try to get the price from 'apexPriceToPay'
                 try:
-                    price_element = driver.find_element(By.XPATH, "(//span[contains(@class, 'apexPriceToPay')]//span[@aria-hidden='true'])[1]")
-                    price = price_element.text.strip()
+                    price_element = driver.find_element(By.XPATH, "//span[contains(@class, 'apexPriceToPay')]//span[@aria-hidden='true']")
+                    full_price = price_element.text.strip()
                 except NoSuchElementException:
-                    price = "N/A"
+                    # If neither price is found, set full_price to "N/A"
+                    full_price = "N/A"
             
-            laptop_price.append(price)
+            laptop_price.append(full_price)
             
             # Scrape the ratings
             try:
@@ -80,7 +89,7 @@ def extract_data_from_page():
 
 
             print(f"Title: {title}")
-            print(f"Price: {price}")
+            print(f"Price: {full_price}")
             print(f"Ratings: {ratings}")
             print("-------------------------")
             # Close the tab
