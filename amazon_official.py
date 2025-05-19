@@ -41,7 +41,7 @@ laptop_ratings = []
 
 # Function to extract data from a single page
 def extract_data_from_page():
-    products = driver.find_elements(By.XPATH, "//a[@class='a-link-normal s-underline-text s-underline-link-text s-link-style a-text-normal']")
+    products = driver.find_elements(By.XPATH, "//a[@class = 'a-link-normal s-line-clamp-2 s-link-style a-text-normal']")
     
     for product in products:
         try:
