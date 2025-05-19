@@ -7,29 +7,56 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException
 
 # Initialize Chrome WebDriver
 chrome_options = Options()
 chrome_options.add_argument("--start-maximized")
 driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
+# import os
+# import re
+# from selenium.webdriver.chrome.options import Options
+# import time
+# import pandas as pd
+# from selenium import webdriver
+# from selenium.webdriver.common.by import By
+# from selenium.webdriver.chrome.service import Service
+# from webdriver_manager.chrome import ChromeDriverManager
+# from selenium.webdriver.support.ui import WebDriverWait
+# from selenium.webdriver.support import expected_conditions as EC
+# from selenium.common.exceptions import NoSuchElementException
+
+# # Setup Chrome WebDriver in headless mode for Jenkins
+
+
+# driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
 
 # Navigate to Amazon India
 driver.get("https://www.amazon.in")
-time.sleep(3)
+# Optional: Add screenshot to debug headless render
+driver.save_screenshot("amazon_homepage_debug.png")
 
-# Search for Dell Laptops
-search = driver.find_element(By.XPATH, "//input[@id='twotabsearchtextbox']")
+# Wait for search bar
+search = WebDriverWait(driver, 15).until(EC.visibility_of_element_located((By.XPATH, "//input[@id='twotabsearchtextbox']"))
+)
 search.clear()
 search.send_keys("Dell Laptops")
+# time.sleep(3)
 
-search_button = driver.find_element(By.XPATH, "//input[@id='nav-search-submit-button']")
+# # Search for Dell Laptops
+# search = WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.XPATH, "//input[@id='twotabsearchtextbox']")))
+# search.clear()
+# search.send_keys("Dell Laptops")
+
+search_button = WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.XPATH, "//input[@id='nav-search-submit-button']")))
 search_button.click()
 
 time.sleep(3)
 
 # Filter to show only Dell brand products
-text = driver.find_element(By.XPATH, "//span[text() = 'Dell']")
+text = WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.XPATH, "//span[text() = 'Dell']")))
 text.click()
 
 # Initialize lists to store the scraped data
@@ -39,7 +66,7 @@ laptop_ratings = []
 
 # Function to extract data from a single page
 def extract_data_from_page():
-    products = driver.find_elements(By.XPATH, "//a[@class='a-link-normal s-underline-text s-underline-link-text s-link-style a-text-normal']")
+    products = WebDriverWait(driver, 15).until(EC.presence_of_all_elements_located((By.XPATH, "//a[@class='a-link-normal s-line-clamp-2 s-link-style a-text-normal' and @target= '_blank']")))
     
     for product in products:
         try:
